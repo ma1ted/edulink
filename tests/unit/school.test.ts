@@ -8,12 +8,12 @@ import { School } from "../../src/School.ts";
 const env = config();
 const schoolCode = env.SCHOOL_CODE;
 
-Deno.test("Code", () => {
+Deno.test("School code", () => {
   const school = new School(schoolCode);
   assertEquals(school.code, schoolCode);
 });
 
-Deno.test("jsonrpc", async () => {
+Deno.test("Response jsonrpc", async () => {
   const school = new School(schoolCode);
   await school.get()
     .then((data) => {

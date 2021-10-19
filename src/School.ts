@@ -1,6 +1,4 @@
-import { v4 } from "https://deno.land/std@0.112.0/uuid/mod.ts";
-
-export class School {
+class School {
   readonly code: string;
 
   private url = "https://provisioning.edulinkone.com/";
@@ -40,3 +38,5 @@ export class School {
     this.code = code;
   }
 }
+
+export { School }
