@@ -1,4 +1,4 @@
-import { v4 } from "https://deno.land/std@0.111.0/uuid/mod.ts";
+import { v4 } from "https://deno.land/std@0.112.0/uuid/mod.ts";
 
 export class School {
   readonly code: string;
