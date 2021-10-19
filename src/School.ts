@@ -39,4 +39,4 @@ class School {
   }
 }
 
-export { School }
+export { School };
