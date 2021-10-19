@@ -33,8 +33,5 @@ jobs:
       - name: Lint Deno Module
         run: deno fmt --check
 
-      - name: Build Deno Module
-        run: deno run --reload src/index.ts
-
       - name: Test Deno Module
         run: deno test --allow-read --allow-net
