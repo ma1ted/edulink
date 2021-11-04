@@ -1,24 +1,23 @@
-import { assertEquals } from "https://deno.land/std@0.112.0/testing/asserts.ts";
+// This simply gets the response object and displays it.
+
 import { config } from "https://deno.land/x/dotenv/mod.ts";
 import * as Server from "../../src/Server.ts";
 import * as School from "../../src/School.ts";
 import { ErrorResponse, SuccessResponse } from "../../src/Server.ts";
 
-const conf = config();
-const schoolCode = conf.SCHOOL_CODE;
-const schoolName = conf.SCHOOL_NAME;
+const schoolCode = config().SCHOOL_CODE;
 
 async function getSchoolName() {
-    const serv = await new Server.Server(schoolCode)
-        .request()
-        .then((res: SuccessResponse) => {
-            return res;
-        })
-        .catch((err: ErrorResponse) => {
-            throw err.message;
-        });
+	const serv = await new Server.Server(schoolCode)
+		.request()
+		.then((res: SuccessResponse) => {
+			return res;
+		})
+		.catch((err: ErrorResponse) => {
+			throw err.message;
+		});
 
-    if (serv.success) {
+	if (serv.success) {
         const sch = await new School.School(serv)
             .request()
             .then((res: School.SuccessResponse) => {
