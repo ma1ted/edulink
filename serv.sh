@@ -1,0 +1,1 @@
+deno run --allow-read --allow-net demos/Server/Basic.server.demo.ts
