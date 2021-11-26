@@ -1,3 +1,4 @@
 .deno
 .env
 dist/
+serv.sh

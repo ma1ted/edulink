@@ -1,1 +1,1 @@
-deno run --allow-read --allow-net demos/Server/Basic.server.demo.ts
+deno run --allow-read --allow-net demos/School/Basic.school.demo.ts

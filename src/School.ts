@@ -1,87 +1,108 @@
 import { uuid } from "https://deno.land/x/unique/uuid.ts";
-import * as Server from "./Server.ts";
 
 enum EduLinkError {
-	NetworkError,
-	SchoolCodeError,
-	SchoolDetailsError,
+    NetworkError,
+    ProvisioningError,
+    SchoolDetailsError,
 }
 
-export interface ErrorResponse {
-	success: false;
-	type: EduLinkError;
-	message: string;
+export interface SchoolResponse {
+    server: string;
+    id: string;
+    name: string;
+    externalLogins: {
+        google: string | null;
+        microsoft: string | null;
+    };
+    externalLoginsOnly: boolean;
+    logo: string;
+}
+export interface SchoolError {
+    type: EduLinkError;
+    message: string;
 }
 
-export interface SuccessResponse {
-	success: true;
-	schoolName: string;
-	externalLoginOnly: boolean;
-	externalLogins: Object;
-	logo: string;
-}
+export class School {
+    readonly schoolCode: string;
 
-class School {
-	readonly serverResponse: Server.SuccessResponse;
+    public request(): Promise<SchoolResponse> {
+        return new Promise((resolve, reject) => {
+            // Provision server
+            fetch("https://provisioning.edulinkone.com/?method=School.FromCode", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    "jsonrpc": "2.0",
+                    "method": "School.FromCode",
+                    "params": {
+                        "code": this.schoolCode
+                    },
+                    "uuid": uuid(),
+                    "id":"1"
+                })
+            })
+            .then(result => result.json())
+            .then(provisioningJson => {
+                if (provisioningJson.result.success) {
+                    fetch(`${provisioningJson.result.school.server}?method=EduLink.SchoolDetails`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-API-Method": "EduLink.SchoolDetails"
+                        },
+                        body: JSON.stringify({
+                            "jsonrpc": "2.0",
+                            "method": "EduLink.SchoolDetails",
+                            "params": {
+                                "establishment_id": provisioningJson.result.school.school_id.toString(),
+                                "from_app": false
+                            },
+                            "uuid": uuid(),
+                            "id": "1"
+                        })
+                    })
+                    .then(result => result.json())
+                    .then(detailsJson => {
+                        if (detailsJson.result.success) {
+                            resolve({
+                                server: provisioningJson.result.school.server,
+                                id: provisioningJson.result.school.school_id,
+                                name: detailsJson.result.establishment.name,
+                                externalLogins: {
+                                    google: detailsJson.result.establishment.idp_login.google ?? null,
+                                    microsoft: detailsJson.result.establishment.idp_login.microsoft ?? null
+                                },
+                                externalLoginsOnly: detailsJson.result.establishment.idp_only,
+                                logo: detailsJson.result.establishment.logo,
+                            });
+                        } else {
+                            reject({
+                                type: EduLinkError.SchoolDetailsError,
+                                message: detailsJson.result.message
+                            } as SchoolError)
+                        }
+                    })
+                    .catch(err => reject({
+                        type: EduLinkError.NetworkError,
+                        message: err.message
+                    } as SchoolError))
+                } else {
+                    reject({
+                        type: EduLinkError.ProvisioningError,
+                        message: provisioningJson.result.message
+                    });
+                }
+            })
+            .catch(err => reject({
+                type: EduLinkError.NetworkError,
+                message: err.message
+            } as SchoolError))
+        });
+    }
 
-	public async request(): Promise<SuccessResponse> {
-		return new Promise((resolve, reject) => {
-			/*`${this.serverResponse.server}/?method=EduLink.SchoolDetails`;*/
-			const url = this.serverResponse.server;
-			const payload = {
-				jsonrpc: "2.0",
-				method: "EduLink.SchoolDetails",
-				params: {
-					establishment_id: this.serverResponse.id.toString(),
-					from_app: false,
-				},
-				uuid: uuid(),
-				id: 1,
-			};
-			const options = {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"X-API-Method": "EduLink.SchoolDetails",
-				},
-				body: JSON.stringify(payload),
-			};
-
-			fetch(url, options)
-				.then((result) => result.json())
-				.then((json) => {
-					if (json.result.success) {
-						let res: SuccessResponse = {
-							success: true,
-							schoolName: json.result.establishment.name,
-							externalLoginOnly: json.result.establishment.idp_only,
-							externalLogins: json.result.establishment.idp_login,
-							logo: json.result.establishment.logo,
-						};
-						resolve(res);
-					} else {
-						const res: ErrorResponse = {
-							success: false,
-							type: EduLinkError.SchoolDetailsError,
-							message: json.result.error,
-						};
-						reject(res);
-					}
-				})
-				.catch((err) => {
-					const res: ErrorResponse = {
-						success: false,
-						type: EduLinkError.NetworkError,
-						message: err.message,
-					};
-					reject(res);
-				});
-		});
+	constructor(schoolCode: string) {
+		this.schoolCode = schoolCode;
 	}
-
-	constructor(server: Server.SuccessResponse) {
-		this.serverResponse = server;
-	}
 }
-
-export { EduLinkError, School };
