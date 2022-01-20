@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
     environment: testing
 
     strategy:
@@ -26,14 +26,22 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
+      - name: Register environment variables
+        env:
+          SCHOOL_CODE: ${{ secrets.SCHOOL_CODE }}
+          SCHOOL_NAME: ${{ secrets.SCHOOL_NAME }}
+          USERNAME: ${{ secrets.USERNAME }}
+          PASSWORD: ${{ secrets.PASSWORD }}
+          FORENAME: ${{ secrets.FORENAME }}
+
       - name: Create .env file
         run: |
           touch .env
-          echo "SCHOOL_CODE=$({{$secrets.SCHOOL_CODE}})" >> .env
-          echo "SCHOOL_NAME=$({{$secrets.SCHOOL_NAME}})" >> .env
-          echo "USERNAME=$({{$secrets.USERNAME}})" >> .env
-          echo "PASSWORD=$({{$secrets.PASSWORD}})" >> .env
-          echo "FORENAME=$({{$secrets.FORENAME}})" >> .env
+          echo "SCHOOL_CODE=$SCHOOL_CODE" >> .env
+          echo "SCHOOL_NAME=$SCHOOL_NAME" >> .env
+          echo "USERNAME=$USERNAME" >> .env
+          echo "PASSWORD=$PASSWORD" >> .env
+          echo "FORENAME=$FORENAME" >> .env
 
       - name: Test Deno Module
         run: deno test -A
