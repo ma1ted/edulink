@@ -10,28 +10,20 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     strategy:
       matrix:
-        deno-version: [1.15.2, 1.15.0]
+        deno-version: [1.16.4, 1.17.3, 1.18.0]
 
     steps:
       - name: Git Checkout Deno Module
         uses: actions/checkout@v2
-
-      - name: Create .env file
-        run: |
-          touch .env
-          echo SCHOOL_CODE=${{ secrets.SCHOOL_CODE }} >> .env
       
       - name: Use Deno Version ${{ matrix.deno-version }}
         uses: denolib/setup-deno@v2
         with:
           deno-version: ${{ matrix.deno-version }}
 
-      - name: Lint Deno Module
-        run: deno fmt --check
-
       - name: Test Deno Module
-        run: deno test --allow-read --allow-net
+        run: deno test -A
