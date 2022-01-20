@@ -26,4 +26,10 @@ jobs:
           deno-version: ${{ matrix.deno-version }}
 
       - name: Test Deno Module
+        env:
+          SCHOOL_CODE: ${{secrets.SCHOOL_CODE}}
+          SCHOOL_NAME: ${{secrets.SCHOOL_NAME}}
+          USERNAME: ${{secrets.USERNAME}}
+          PASSWORD: ${{secrets.PASSWORD}}
+          FORENAME: ${{secrets.FORENAME}}
         run: deno test -A
