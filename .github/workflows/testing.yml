@@ -26,15 +26,13 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
-      - name: Register environment variables
+      - name: Create .env file
         env:
           SCHOOL_CODE: ${{ secrets.SCHOOL_CODE }}
           SCHOOL_NAME: ${{ secrets.SCHOOL_NAME }}
           USERNAME: ${{ secrets.USERNAME }}
           PASSWORD: ${{ secrets.PASSWORD }}
           FORENAME: ${{ secrets.FORENAME }}
-
-      - name: Create .env file
         run: |
           touch .env
           echo "SCHOOL_CODE=$SCHOOL_CODE" >> .env
