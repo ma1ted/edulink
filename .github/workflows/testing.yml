@@ -29,11 +29,11 @@ jobs:
       - name: Create .env file
         run: |
           touch .env
-          echo "SCHOOL_CODE={{$secrets.SCHOOL_CODE}}" >> .env
-          echo "SCHOOL_NAME={{$secrets.SCHOOL_NAME}}" >> .env
-          echo "USERNAME={{$secrets.USERNAME}}" >> .env
-          echo "PASSWORD={{$secrets.PASSWORD}}" >> .env
-          echo "FORENAME={{$secrets.FORENAME}}" >> .env
+          echo "SCHOOL_CODE=$({{$secrets.SCHOOL_CODE}})" >> .env
+          echo "SCHOOL_NAME=$({{$secrets.SCHOOL_NAME}})" >> .env
+          echo "USERNAME=$({{$secrets.USERNAME}})" >> .env
+          echo "PASSWORD=$({{$secrets.PASSWORD}})" >> .env
+          echo "FORENAME=$({{$secrets.FORENAME}})" >> .env
 
       - name: Test Deno Module
         run: deno test -A
