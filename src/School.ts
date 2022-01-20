@@ -1,10 +1,6 @@
 import { uuid } from "https://deno.land/x/unique/uuid.ts";
 
-enum EduLinkError {
-    NetworkError,
-    ProvisioningError,
-    SchoolDetailsError,
-}
+import * as EduLink from "./EduLink.ts"
 
 export interface SchoolResponse {
     server: string;
@@ -16,10 +12,6 @@ export interface SchoolResponse {
     };
     externalLoginsOnly: boolean;
     logo: string;
-}
-export interface SchoolError {
-    type: EduLinkError;
-    message: string;
 }
 
 export class School {
@@ -78,31 +70,20 @@ export class School {
                                 logo: detailsJson.result.establishment.logo,
                             });
                         } else {
-                            reject({
-                                type: EduLinkError.SchoolDetailsError,
-                                message: detailsJson.result.message
-                            } as SchoolError)
+                            reject(new EduLink.EduLinkError(detailsJson.result.error, EduLink.ErrorType.SchoolDetailsError))
                         }
                     })
-                    .catch(err => reject({
-                        type: EduLinkError.NetworkError,
-                        message: err.message
-                    } as SchoolError))
+                    .catch(err => reject(new EduLink.EduLinkError(err.message, EduLink.ErrorType.NetworkError)))
                 } else {
-                    reject({
-                        type: EduLinkError.ProvisioningError,
-                        message: provisioningJson.result.message
-                    });
+                    reject(new EduLink.EduLinkError(provisioningJson.result.error, EduLink.ErrorType.ProvisioningError));
                 }
             })
-            .catch(err => reject({
-                type: EduLinkError.NetworkError,
-                message: err.message
-            } as SchoolError))
+            .catch(err => reject(new EduLink.EduLinkError(err.message, EduLink.ErrorType.NetworkError)))
         });
     }
 
 	constructor(schoolCode: string) {
+        if (!schoolCode) throw new EduLink.EduLinkError("No school code supplied.", EduLink.ErrorType.SchoolDetailsError);
 		this.schoolCode = schoolCode;
 	}
 }

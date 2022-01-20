@@ -1,1 +1,0 @@
-deno run --allow-read --allow-net demos/School/Basic.school.demo.ts

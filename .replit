@@ -1,2 +1,0 @@
-language = "deno"
-run = "deno test --allow-net --allow-read"
