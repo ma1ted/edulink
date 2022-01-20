@@ -26,5 +26,10 @@ jobs:
         with:
           deno-version: ${{ matrix.deno-version }}
 
+      - name: Create .env file
+        run: |
+          pwd 
+          ls -a
+
       - name: Test Deno Module
         run: deno test -A
